@@ -1,0 +1,8 @@
+{
+  "name": "Remix Bio Lab 7 - Bí Mật Hơi Thở Của Hạt",
+  "description": "Phòng thí nghiệm số tương tác Bài 27: Thực hành Hô hấp ở thực vật - KHTN 7",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

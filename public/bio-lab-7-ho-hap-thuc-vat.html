@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIO LAB 7 – BÍ MẬT HƠI THỞ CỦA HẠT (Bài 27 - KHTN 7)</title>
+  <meta name="description" content="Phòng thí nghiệm số tương tác: Bài 27 - Thực hành Hô hấp ở thực vật - Khoa học tự nhiên 7 (GDPT 2018)">
+  <!-- Tailwind CSS CDN for standalone browser execution -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #f7fee7 50%, #ecfdf5 100%);
+      color: #0f172a;
+    }
+    @keyframes pulseSoft {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.04); opacity: 1; }
+    }
+    .animate-pulse-soft {
+      animation: pulseSoft 2.5s infinite ease-in-out;
+    }
+    @media print {
+      body { background: white !important; color: black !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- APP HEADER -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-emerald-200 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md font-black text-lg">
+          🌱
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-emerald-950 text-base">BIO LAB 7</span>
+            <span class="hidden sm:inline-block text-[11px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-300">
+              Bài 27: Hô hấp ở thực vật
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">Bí Mật Hơi Thở Của Hạt</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div id="student-badge" class="hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700">
+          <span class="text-emerald-700" id="badge-name">Học sinh</span>
+        </div>
+
+        <div class="flex items-center gap-1 px-3 py-1 bg-amber-50 border-2 border-amber-300 rounded-xl">
+          <span class="text-amber-600 font-bold text-xs">⭐ Điểm:</span>
+          <span id="score-counter" class="text-base font-black text-amber-900">0</span>
+          <span class="text-[10px] text-amber-700 font-bold">/100</span>
+        </div>
+
+        <button id="sound-btn" onclick="toggleSound()" class="p-2 rounded-xl border border-slate-200 hover:bg-emerald-50 text-slate-700 font-bold text-sm" title="Bật/Tắt âm thanh">
+          🔊
+        </button>
+
+        <button onclick="openTeacherModal()" class="px-2.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 text-xs font-black flex items-center gap-1.5 transition-all" title="Chế độ Giáo viên (Mật khẩu: 1234)">
+          <span>🔐</span>
+          <span class="hidden sm:inline">Giáo viên</span>
+        </button>
+
+        <button onclick="confirmReset()" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="Làm lại thí nghiệm">
+          🔄
+        </button>
+      </div>
+    </div>
+
+    <!-- 6-Stage Stepper -->
+    <div id="stage-stepper" class="hidden bg-emerald-50/80 border-t border-emerald-100 px-4 py-1.5 overflow-x-auto">
+      <div class="max-w-4xl mx-auto flex items-center justify-between min-w-[540px] text-xs font-bold">
+        <button onclick="gotoStage(1)" id="step-btn-1" class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white">🌱 1. Chuẩn bị</button>
+        <span class="text-emerald-300">➔</span>
+        <button onclick="gotoStage(2)" id="step-btn-2" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400">🧪 2. Lắp đặt</button>
+        <span class="text-emerald-300">➔</span>
+        <button onclick="gotoStage(3)" id="step-btn-3" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400">🔮 3. Dự đoán</button>
+        <span class="text-emerald-300">➔</span>
+        <button onclick="gotoStage(4)" id="step-btn-4" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400">🔬 4. Quan sát</button>
+        <span class="text-emerald-300">➔</span>
+        <button onclick="gotoStage(5)" id="step-btn-5" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400">🕵️ 5. Điều tra</button>
+        <span class="text-emerald-300">➔</span>
+        <button onclick="gotoStage(6)" id="step-btn-6" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400">🏆 6. Kết luận</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN STAGES CONTAINER -->
+  <main id="app-container" class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6">
+    <!-- Screen 0: Welcome Screen -->
+    <section id="screen-welcome" class="flex flex-col items-center justify-center min-h-[75vh] text-center">
+      <div class="max-w-xl w-full bg-white/95 rounded-3xl border-2 border-emerald-200 p-6 sm:p-10 shadow-2xl">
+        <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-4">
+          Khoa học tự nhiên 7 • Chương trình GDPT 2018
+        </span>
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 mb-2">BIO LAB 7</h1>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-700 mb-4">BÍ MẬT HƠI THỞ CỦA HẠT</h2>
+        <p class="text-slate-600 text-sm mb-6">
+          "Bạn đã sẵn sàng khám phá xem một hạt đậu nhỏ bé đang <span class="font-bold text-emerald-700">‘thở’</span> như thế nào chưa?"
+        </p>
+
+        <form onsubmit="handleStart(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Họ và tên học sinh *</label>
+              <input id="input-name" required type="text" placeholder="Ví dụ: Nguyễn Văn An" class="w-full px-3.5 py-2.5 bg-slate-50 border-2 border-emerald-300 rounded-xl text-sm font-semibold focus:outline-none focus:border-emerald-600">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Lớp</label>
+              <input id="input-class" type="text" placeholder="7A1" class="w-full px-3.5 py-2.5 bg-slate-50 border-2 border-emerald-300 rounded-xl text-sm font-semibold text-center focus:outline-none focus:border-emerald-600">
+            </div>
+          </div>
+          <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-base rounded-2xl shadow-lg hover:brightness-105 transition-all">
+            🌱 BẮT ĐẦU KHÁM PHÁ
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Screen 1: Stage 1 Prep -->
+    <section id="screen-stage1" class="hidden">
+      <div class="text-center mb-6">
+        <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">Màn 1 / 6</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-2">THỬ THÁCH 1 – ĐÁNH THỨC HẠT ĐẬU</h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto mt-1">Sắp xếp đúng 6 bước chuẩn bị mẫu vật hạt nảy mầm trước khi đưa vào thí nghiệm.</p>
+      </div>
+
+      <div class="bg-white rounded-3xl border-2 border-emerald-200 p-5 sm:p-7 shadow-xl">
+        <div id="prep-cards" class="space-y-3">
+          <!-- Dynamic prep cards rendered via JS -->
+        </div>
+
+        <div id="prep-feedback" class="hidden mt-4 p-3 rounded-xl text-xs font-bold"></div>
+
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-xs text-slate-500">Hoàn thành đúng thứ tự: +10 điểm thao tác</span>
+          <button id="prep-check-btn" onclick="checkStage1Order()" class="px-6 py-2.5 bg-emerald-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-emerald-700">
+            Kiểm tra thứ tự
+          </button>
+          <button id="prep-next-btn" onclick="gotoStage(2)" class="hidden px-6 py-2.5 bg-teal-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-teal-700">
+            Tiếp tục: Màn 2 ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 2: Stage 2 Assembly -->
+    <section id="screen-stage2" class="hidden">
+      <div class="text-center mb-6">
+        <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">Màn 2 / 6</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-2">THỬ THÁCH 2 – LẮP ĐẶT PHÒNG THÍ NGHIỆM</h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto mt-1">Chọn dụng cụ từ kho đặt vào Chuông A (thí nghiệm) và Chuông B (đối chứng).</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-4 bg-white rounded-3xl border-2 border-emerald-200 p-4 shadow-xl">
+          <h3 class="font-extrabold text-sm text-slate-900 pb-2 border-b">🧰 KHO DỤNG CỤ THÍ NGHIỆM</h3>
+          <div id="toolbox-list" class="mt-3 space-y-2">
+            <!-- Dynamic tools rendered via JS -->
+          </div>
+        </div>
+
+        <div class="lg:col-span-8 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Chuông A -->
+            <div class="bg-emerald-50/50 rounded-3xl border-2 border-emerald-400 p-4 text-center min-h-[320px] flex flex-col justify-between">
+              <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
+                <span class="font-black text-emerald-950 text-sm">🅰️ CHUÔNG A (Thí nghiệm)</span>
+                <span id="seal-tag-a" class="text-[10px] bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded">Chưa đậy</span>
+              </div>
+              <div id="jar-a-items" class="my-4 flex-1 flex flex-col items-center justify-center gap-2">
+                <span class="text-xs text-slate-400 italic">(Chưa có dụng cụ trong Chuông A)</span>
+              </div>
+              <div class="text-[10px] text-emerald-800 font-semibold">Cần: Hạt nảy mầm + Cốc nước vôi trong + Nhãn A</div>
+            </div>
+
+            <!-- Chuông B -->
+            <div class="bg-teal-50/50 rounded-3xl border-2 border-teal-400 p-4 text-center min-h-[320px] flex flex-col justify-between">
+              <div class="flex items-center justify-between border-b border-teal-200 pb-2">
+                <span class="font-black text-teal-950 text-sm">🅱️ CHUÔNG B (Đối chứng)</span>
+                <span id="seal-tag-b" class="text-[10px] bg-teal-200 text-teal-800 font-bold px-2 py-0.5 rounded">Chưa đậy</span>
+              </div>
+              <div id="jar-b-items" class="my-4 flex-1 flex flex-col items-center justify-center gap-2">
+                <span class="text-xs text-slate-400 italic">(Chưa có dụng cụ trong Chuông B)</span>
+              </div>
+              <div class="text-[10px] text-teal-800 font-semibold">Cần: Cốc nước vôi trong + Nhãn B (KHÔNG hạt)</div>
+            </div>
+          </div>
+
+          <div id="assembly-feedback" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+
+          <div class="bg-white rounded-2xl border p-4 flex items-center justify-between">
+            <span class="text-xs text-slate-500">Lắp đủ và đúng trước khi đậy chuông</span>
+            <button id="seal-btn" onclick="handleSealJars()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm rounded-xl">
+              🔔 ĐẬY KÍN HAI CHUÔNG
+            </button>
+            <button id="assembly-next-btn" onclick="gotoStage(3)" class="hidden px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs sm:text-sm rounded-xl">
+              Tiếp tục: Màn 3 ➔
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 3: Stage 3 Predict -->
+    <section id="screen-stage3" class="hidden">
+      <div class="text-center mb-6">
+        <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">Màn 3 / 6</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-2">THỬ THÁCH 3 – EM DỰ ĐOÁN ĐIỀU GÌ?</h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto mt-1">Đưa ra giả thuyết khoa học trước khi tiến hành thí nghiệm.</p>
+      </div>
+
+      <div class="max-w-2xl mx-auto bg-white rounded-3xl border-2 border-emerald-200 p-6 shadow-xl space-y-5">
+        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200">
+          <p class="font-bold text-sm text-emerald-950 mb-2">1. Em dự đoán điều gì xảy ra với nước vôi ở Chuông A (có hạt nảy mầm)?</p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 p-2 bg-white rounded-lg border cursor-pointer"><input type="radio" name="pred_a" value="turbid"> Xuất hiện vẩn đục màu trắng sữa</label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded-lg border cursor-pointer"><input type="radio" name="pred_a" value="clear"> Hầu như không thay đổi (trong suốt)</label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded-lg border cursor-pointer"><input type="radio" name="pred_a" value="green"> Chuyển sang màu xanh</label>
+          </div>
+        </div>
+
+        <div class="p-4 bg-teal-50 rounded-2xl border border-teal-200">
+          <p class="font-bold text-sm text-teal-950 mb-2">2. Em dự đoán điều gì xảy ra với nước vôi ở Chuông B (đối chứng không hạt)?</p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 p-2 bg-white rounded-lg border cursor-pointer"><input type="radio" name="pred_b" value="clear"> Hầu như không thay đổi (vẫn trong suốt)</label>
+            <label class="flex items-center gap-2 p-2 bg-white rounded-lg border cursor-pointer"><input type="radio" name="pred_b" value="turbid"> Xuất hiện vẩn đục trắng như chuông A</label>
+          </div>
+        </div>
+
+        <div id="pred-locked-notice" class="hidden p-3 bg-emerald-100 text-emerald-900 rounded-xl text-xs font-bold">
+          🔒 Dự đoán đã được ghi nhận vào Nhật kí nhà khoa học! (+10 điểm)
+        </div>
+
+        <div class="pt-4 border-t flex items-center justify-between">
+          <button id="lock-pred-btn" onclick="lockPredictions()" class="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs sm:text-sm rounded-xl">
+            🔒 KHÓA DỰ ĐOÁN
+          </button>
+          <button id="pred-next-btn" onclick="gotoStage(4)" class="hidden px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs sm:text-sm rounded-xl">
+            Tiếp tục: Màn 4 ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 4: Stage 4 Simulate -->
+    <section id="screen-stage4" class="hidden">
+      <div class="text-center mb-6">
+        <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">Màn 4 / 6</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-2">THỬ THÁCH 4 – 60 PHÚT TRONG PHÒNG THÍ NGHIỆM</h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto mt-1">Chạy mô phỏng thời gian và bật kính hiển vi phân tử để nhìn thấy khí CO₂ và O₂.</p>
+      </div>
+
+      <div class="bg-white rounded-3xl border-2 border-emerald-200 p-5 shadow-xl mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="bg-slate-900 text-emerald-400 font-mono text-xl sm:text-2xl font-black px-4 py-2 rounded-xl">
+              <span id="sim-clock">00:00:00</span>
+            </div>
+            <button id="sim-run-btn" onclick="toggleSimulation()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm rounded-xl shadow-md">
+              ▶ BẮT ĐẦU THÍ NGHIỆM
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="toggleMolecularMode()" class="px-4 py-2 bg-teal-50 border-2 border-teal-300 text-teal-800 font-extrabold text-xs sm:text-sm rounded-xl">
+              🔬 BẬT CHẾ ĐỘ PHÂN TỬ
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chamber Visuals -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-3xl border-2 border-emerald-400 p-6 text-center shadow-lg">
+          <h3 class="font-black text-base text-emerald-950 mb-2">CHUÔNG A (CÓ HẠT NẢY MẦM)</h3>
+          <div class="h-64 border-2 border-teal-300 rounded-t-full bg-teal-50/20 flex flex-col items-center justify-end pb-4 relative">
+            <div class="flex items-end justify-center gap-4">
+              <div class="text-center"><span class="text-4xl">🌱</span><p class="text-[10px] font-bold">Hạt mầm</p></div>
+              <div class="w-16 h-24 border-2 border-slate-400 rounded-b-lg flex flex-col justify-end p-1">
+                <div id="sim-beaker-a" class="w-full h-1/2 bg-blue-100 rounded-b transition-colors duration-300"></div>
+                <span class="text-[9px] font-bold mt-1">Nước vôi</span>
+              </div>
+            </div>
+          </div>
+          <p id="sim-status-a" class="text-xs font-bold text-emerald-900 mt-3">Nước vôi trong suốt (0 phút)</p>
+        </div>
+
+        <div class="bg-white rounded-3xl border-2 border-teal-400 p-6 text-center shadow-lg">
+          <h3 class="font-black text-base text-teal-950 mb-2">CHUÔNG B (ĐỐI CHỨNG - KHÔNG HẠT)</h3>
+          <div class="h-64 border-2 border-teal-300 rounded-t-full bg-teal-50/20 flex flex-col items-center justify-end pb-4 relative">
+            <div class="flex items-end justify-center gap-4">
+              <div class="text-center"><span class="text-3xl">🧫</span><p class="text-[10px] font-bold">Đĩa trống</p></div>
+              <div class="w-16 h-24 border-2 border-slate-400 rounded-b-lg flex flex-col justify-end p-1">
+                <div class="w-full h-1/2 bg-blue-100 rounded-b"></div>
+                <span class="text-[9px] font-bold mt-1">Nước vôi</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs font-bold text-teal-900 mt-3">Nước vôi luôn trong suốt</p>
+        </div>
+      </div>
+
+      <!-- Molecular View Modal -->
+      <div id="molecule-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-emerald-400 text-white rounded-3xl max-w-2xl w-full p-6 text-center space-y-4">
+          <h3 class="font-black text-lg text-emerald-300">🔬 KÍNH HIỂN VI PHÂN TỬ</h3>
+          <p class="text-xs text-slate-300">Mô hình trực quan: Hạt đậu nảy mầm hấp thụ Oxygen (O₂) và giải phóng Carbon Dioxide (CO₂)</p>
+          <div class="h-48 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-around p-4">
+            <div class="text-center">
+              <span class="text-4xl">🌱</span>
+              <p class="text-[10px] font-bold text-emerald-400 mt-1">Phôi hạt sống</p>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-blue-900 border border-blue-400 text-blue-300 text-xs font-bold animate-pulse">➔ Hút O₂ ➔</span>
+              <span class="px-2 py-0.5 rounded bg-rose-900 border border-rose-400 text-rose-300 text-xs font-bold animate-pulse">➔ Thải CO₂ ➔</span>
+            </div>
+            <div class="text-center">
+              <span class="text-3xl">🧪</span>
+              <p class="text-[10px] font-bold text-cyan-300 mt-1">Ca(OH)₂ ➔ CaCO₃ (Đục)</p>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">* Lưu ý: Khí O₂ và CO₂ trong tự nhiên là không màu. Mô hình dùng màu sắc để trực quan hóa.</p>
+          <button onclick="toggleMolecularMode()" class="px-6 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs">Đóng kính hiển vi</button>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button id="sim-next-btn" onclick="gotoStage(5)" class="hidden px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs sm:text-sm rounded-xl">
+          Tiếp tục: Màn 5 ➔
+        </button>
+      </div>
+    </section>
+
+    <!-- Screen 5: Stage 5 Detective -->
+    <section id="screen-stage5" class="hidden">
+      <div class="text-center mb-6">
+        <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">Màn 5 / 6</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-2">THỬ THÁCH 5 – AI ĐÃ LÀM HỎNG THÍ NGHIỆM?</h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto mt-1">Phát hiện và sửa chữa 6 tình huống sai sót thí nghiệm phổ biến (+5đ/câu đúng).</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto bg-white rounded-3xl border-2 border-emerald-200 p-6 shadow-xl space-y-6">
+        <div id="detective-case-box">
+          <!-- Rendered via JS -->
+        </div>
+
+        <div class="pt-4 border-t flex items-center justify-between">
+          <span id="detective-score-badge" class="text-xs font-bold text-emerald-700">Đã giải quyết: 0 / 6 vụ án</span>
+          <button id="detective-next-btn" onclick="gotoStage(6)" class="hidden px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs sm:text-sm rounded-xl">
+            Tiếp tục: Màn 6 ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 6: Stage 6 Conclusion & Food Game -->
+    <section id="screen-stage6" class="hidden">
+      <div class="text-center mb-6">
+        <span class="text-xs font-bold uppercase text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">Màn 6 / 6</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-2">THỬ THÁCH CUỐI – GIẢI MÃ HƠI THỞ CỦA HẠT</h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto mt-1">Tự tay viết kết luận khoa học và khám phá ứng dụng thực tế từ hạt đậu.</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto space-y-6">
+        <!-- Conclusion Input -->
+        <div class="bg-white rounded-3xl border-2 border-emerald-200 p-6 shadow-xl">
+          <h3 class="font-black text-base text-slate-900 mb-2">📝 KẾT LUẬN KHOA HỌC CỦA EM</h3>
+          <p class="text-xs text-slate-500 mb-3">Gõ câu kết luận rút ra từ thí nghiệm (chứa các ý: hạt nảy mầm, hô hấp, khí CO₂ / carbon dioxide):</p>
+          <textarea id="conclusion-input" rows="3" placeholder="Ví dụ: Hạt đang nảy mầm thực hiện quá trình hô hấp và thải ra khí carbon dioxide..." class="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:border-emerald-600"></textarea>
+          <div class="mt-3 flex items-center justify-between">
+            <button onclick="evaluateConclusion()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl">
+              Chấm điểm kết luận
+            </button>
+            <span class="text-[11px] text-slate-600">* Chấm thông minh theo từ khóa</span>
+          </div>
+          <div id="conclusion-eval-feedback" class="hidden mt-3 p-3 rounded-xl text-xs font-bold"></div>
+        </div>
+
+        <!-- Food Application mini game -->
+        <div class="bg-white rounded-3xl border-2 border-amber-200 p-6 shadow-xl">
+          <h3 class="font-black text-base text-amber-950 mb-2">🍽️ VẬN DỤNG THỰC TẾ: TỪ HẠT ĐẬU ĐẾN BỮA ĂN</h3>
+          <p class="text-xs text-slate-600 mb-4">Trả lời câu hỏi: Vì sao không nên ngâm hạt chìm ngập trong nước suốt nhiều ngày?</p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border cursor-pointer">
+              <input type="radio" name="food_q" value="correct"> Vì ngập nước lâu hạt bị thiếu oxygen để hô hấp, tế bào phôi bị ngạt và thối rữa
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border cursor-pointer">
+              <input type="radio" name="food_q" value="wrong"> Vì hạt sẽ tan biến thành nước
+            </label>
+          </div>
+          <button onclick="submitFoodAnswer()" class="mt-4 px-5 py-2 bg-amber-600 text-white font-bold text-xs rounded-xl">
+            Xác nhận câu trả lời (+5đ)
+          </button>
+          <div id="food-feedback" class="hidden mt-3 p-2 bg-emerald-100 text-emerald-900 rounded-lg text-xs font-bold">
+            ✓ Chính xác! Em đã hiểu sâu bản chất hô hấp của hạt giống.
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <button onclick="finishLab()" class="px-8 py-3.5 bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl hover:scale-105 transition-all">
+            🏆 HOÀN THÀNH & XEM PHIẾU BÁO CÁO
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 7: Stage 7 Report & Badge -->
+    <section id="screen-stage7" class="hidden">
+      <div class="max-w-3xl mx-auto space-y-6">
+        <div class="no-print bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 rounded-3xl text-center shadow-2xl">
+          <span class="text-5xl">🏆</span>
+          <h2 class="text-2xl font-black mt-2">CHÚC MỪNG EM ĐÃ HOÀN THÀNH BÀI THỰC HÀNH!</h2>
+          <p class="text-xs text-emerald-100 mt-1">BÍ MẬT HƠI THỞ CỦA HẠT • BÀI 27 KHTN 7</p>
+          <div id="badge-title-display" class="mt-4 inline-block px-5 py-2 bg-white text-slate-900 font-black rounded-xl shadow">
+            🏅 NHÀ KHOA HỌC THỰC VẬT XUẤT SẮC
+          </div>
+          <div class="mt-4 flex justify-center gap-3">
+            <button onclick="window.print()" class="px-5 py-2.5 bg-white text-emerald-900 font-extrabold text-xs sm:text-sm rounded-xl shadow">
+              🖨 IN KẾT QUẢ / LƯU PDF
+            </button>
+            <button onclick="confirmReset()" class="px-5 py-2.5 bg-emerald-800 text-emerald-100 font-bold text-xs sm:text-sm rounded-xl">
+              🔄 Thực hiện lại
+            </button>
+          </div>
+        </div>
+
+        <!-- Printable Lab Report Card -->
+        <div class="bg-white rounded-3xl border-2 border-slate-300 p-6 sm:p-8 shadow-xl text-xs sm:text-sm">
+          <div class="border-b-2 border-slate-800 pb-3 mb-4 text-center">
+            <h3 class="font-black text-base uppercase text-slate-900">PHIẾU BÁO CÁO KẾT QUẢ THỰC HÀNH</h3>
+            <p class="font-bold text-emerald-700">BÀI 27: THỰC HÀNH HÔ HẤP Ở THỰC VẬT - KHTN 7</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4 bg-slate-50 p-3 rounded-xl">
+            <div><strong>Họ và tên:</strong> <span id="report-name">...</span></div>
+            <div><strong>Lớp:</strong> <span id="report-class">...</span></div>
+            <div><strong>Tổng điểm:</strong> <span id="report-score" class="font-black text-emerald-700">0/100</span></div>
+            <div><strong>Xếp loại:</strong> <span id="report-badge">...</span></div>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="font-bold uppercase text-slate-700 mb-1">1. Kết quả quan sát:</h4>
+            <p>• Chuông A (Hạt nảy mầm): Nước vôi trong chuyển thành vẩn đục màu trắng sữa do khí CO₂ từ hạt thoát ra.</p>
+            <p>• Chuông B (Đối chứng không hạt): Nước vôi trong suốt, hầu như không thay đổi.</p>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="font-bold uppercase text-slate-700 mb-1">2. Kết luận khoa học:</h4>
+            <p id="report-conclusion" class="italic bg-slate-50 p-2.5 rounded-lg border">...</p>
+          </div>
+
+          <div class="pt-4 border-t grid grid-cols-2 text-center text-xs text-slate-600">
+            <div><p class="font-bold">HỌC SINH THỰC HIỆN</p><div class="h-12 flex items-center justify-center font-bold text-slate-800" id="report-sign-name">...</div></div>
+            <div><p class="font-bold">GIÁO VIÊN ĐÁNH GIÁ</p><div class="h-12 flex items-center justify-center font-bold text-emerald-700">ĐẠT CHUẨN KHTN 7</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- JAVASCRIPT LOGIC & WEB AUDIO SYNTHESIZER -->
+  <script>
+    // State
+    const state = {
+      name: '',
+      studentClass: '',
+      currentStage: 0,
+      sound: true,
+      score: { prep: 0, assembly: 0, predict: 0, simulate: 0, detective: 0, conclusion: 0 },
+      jarA: [],
+      jarB: [],
+      sealed: false,
+      predA: '',
+      predB: '',
+      predLocked: false,
+      simMinutes: 0,
+      simTimer: null,
+      solvedCases: {},
+      conclusionText: '',
+      foodAnswered: false,
+    };
+
+    // Sound Synthesizer via Web Audio API
+    let audioCtx = null;
+    function playBeep(freq, duration = 0.1, type = 'sine') {
+      if (!state.sound) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      state.sound = !state.sound;
+      document.getElementById('sound-btn').innerText = state.sound ? '🔊' : '🔇';
+    }
+
+    function updateScoreDisplay() {
+      const total = Object.values(state.score).reduce((a, b) => a + b, 0);
+      document.getElementById('score-counter').innerText = total;
+    }
+
+    function gotoStage(n) {
+      playBeep(440, 0.05);
+      state.currentStage = n;
+      document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById('screen-stage' + n);
+      if (target) target.classList.remove('hidden');
+
+      // Update stepper highlight
+      for (let i = 1; i <= 6; i++) {
+        const btn = document.getElementById('step-btn-' + i);
+        if (btn) {
+          if (i === n) {
+            btn.className = 'px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold';
+          } else if (i < n) {
+            btn.className = 'px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400 font-bold';
+          }
+        }
+      }
+    }
+
+    // Start App
+    function handleStart(e) {
+      e.preventDefault();
+      const name = document.getElementById('input-name').value.trim();
+      const sClass = document.getElementById('input-class').value.trim() || '7A';
+      if (!name) return;
+      state.name = name;
+      state.studentClass = sClass;
+      document.getElementById('student-badge').classList.remove('hidden');
+      document.getElementById('badge-name').innerText = name + ' (' + sClass + ')';
+      document.getElementById('stage-stepper').classList.remove('hidden');
+      initStage1();
+      initStage2();
+      initStage5();
+      gotoStage(1);
+    }
+
+    // STAGE 1: PREP
+    const prepSteps = [
+      { id: 1, order: 0, text: '1. Chọn hạt đậu tròn mẩy, chắc khỏe, không sâu mọt' },
+      { id: 2, order: 1, text: '2. Rửa sạch hạt với nước để loại bỏ nấm mốc' },
+      { id: 3, order: 2, text: '3. Ngâm hạt trong nước ấm (35-40°C) khoảng 4-6 giờ' },
+      { id: 4, order: 3, text: '4. Đặt hạt lên đĩa Petri có lót bông hoặc giấy ẩm' },
+      { id: 5, order: 4, text: '5. Ủ hạt ở nơi ấm, thoáng khí để hạt nảy mầm' },
+      { id: 6, order: 5, text: '6. Thu nhận hạt đã nứt vỏ và nhú mầm non trắng khỏe' },
+    ];
+    let currentPrepOrder = [3, 1, 5, 2, 6, 4]; // shuffled
+
+    function initStage1() {
+      renderPrepList();
+    }
+
+    function renderPrepList() {
+      const container = document.getElementById('prep-cards');
+      container.innerHTML = '';
+      currentPrepOrder.forEach((stepId, idx) => {
+        const step = prepSteps.find(s => s.id === stepId);
+        const card = document.createElement('div');
+        card.className = 'p-3 bg-slate-50 border rounded-xl flex items-center justify-between text-xs sm:text-sm font-semibold';
+        card.innerHTML = `
+          <span>${step.text}</span>
+          <div class="flex gap-1 shrink-0">
+            <button onclick="movePrep(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30"' : 'class="px-2 py-1 bg-slate-200 rounded"'}>▲</button>
+            <button onclick="movePrep(${idx}, 1)" ${idx === currentPrepOrder.length - 1 ? 'disabled class="opacity-30"' : 'class="px-2 py-1 bg-slate-200 rounded"'}>▼</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function movePrep(idx, dir) {
+      playBeep(520, 0.05);
+      const target = idx + dir;
+      if (target < 0 || target >= currentPrepOrder.length) return;
+      const tmp = currentPrepOrder[idx];
+      currentPrepOrder[idx] = currentPrepOrder[target];
+      currentPrepOrder[target] = tmp;
+      renderPrepList();
+    }
+
+    function checkStage1Order() {
+      const isCorrect = currentPrepOrder.every((id, idx) => id === prepSteps[idx].id);
+      const fb = document.getElementById('prep-feedback');
+      fb.classList.remove('hidden');
+      if (isCorrect) {
+        playBeep(659, 0.15, 'triangle');
+        state.score.prep = 10;
+        updateScoreDisplay();
+        fb.className = 'mt-4 p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900';
+        fb.innerText = '🎉 Chuẩn xác! Mầm non đã thức giấc. Em được cộng 10 điểm.';
+        document.getElementById('prep-check-btn').classList.add('hidden');
+        document.getElementById('prep-next-btn').classList.remove('hidden');
+      } else {
+        playBeep(220, 0.2);
+        fb.className = 'mt-4 p-3 rounded-xl text-xs font-bold bg-amber-100 text-amber-900';
+        fb.innerText = '💡 Chưa đúng thứ tự logic. Hãy nhớ: Lựa hạt ➔ Rửa sạch ➔ Ngâm nước ấm ➔ Đặt lên bông ẩm ➔ Ủ ấm ➔ Thu mầm nhé!';
+      }
+    }
+
+    // STAGE 2: ASSEMBLY
+    const tools = [
+      { id: 'sprouted', name: 'Đĩa hạt đậu nảy mầm', icon: '🌱' },
+      { id: 'lime_1', name: 'Cốc nước vôi trong A', icon: '🧪' },
+      { id: 'lime_2', name: 'Cốc nước vôi trong B', icon: '🧪' },
+      { id: 'plain', name: 'Cốc nước thường', icon: '💧' },
+      { id: 'label_a', name: 'Nhãn A', icon: '🅰️' },
+      { id: 'label_b', name: 'Nhãn B', icon: '🅱️' },
+    ];
+
+    function initStage2() {
+      const container = document.getElementById('toolbox-list');
+      container.innerHTML = '';
+      tools.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'p-2 bg-slate-50 border rounded-xl flex items-center justify-between text-xs';
+        item.innerHTML = `
+          <span>${t.icon} ${t.name}</span>
+          <div class="flex gap-1">
+            <button onclick="placeTool('A', '${t.id}')" class="px-2 py-0.5 bg-emerald-600 text-white rounded font-bold text-[10px]">+ Vào A</button>
+            <button onclick="placeTool('B', '${t.id}')" class="px-2 py-0.5 bg-teal-600 text-white rounded font-bold text-[10px]">+ Vào B</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function placeTool(jar, toolId) {
+      playBeep(480, 0.05);
+      if (jar === 'A') {
+        if (!state.jarA.includes(toolId)) state.jarA.push(toolId);
+        state.jarB = state.jarB.filter(id => id !== toolId);
+      } else {
+        if (!state.jarB.includes(toolId)) state.jarB.push(toolId);
+        state.jarA = state.jarA.filter(id => id !== toolId);
+      }
+      renderJars();
+    }
+
+    function renderJars() {
+      const boxA = document.getElementById('jar-a-items');
+      const boxB = document.getElementById('jar-b-items');
+      boxA.innerHTML = state.jarA.map(id => {
+        const t = tools.find(x => x.id === id);
+        return `<span class="px-2 py-1 bg-white border border-emerald-300 rounded-lg text-xs font-bold">${t.icon} ${t.name}</span>`;
+      }).join('') || '<span class="text-xs text-slate-400 italic">(Trống)</span>';
+
+      boxB.innerHTML = state.jarB.map(id => {
+        const t = tools.find(x => x.id === id);
+        return `<span class="px-2 py-1 bg-white border border-teal-300 rounded-lg text-xs font-bold">${t.icon} ${t.name}</span>`;
+      }).join('') || '<span class="text-xs text-slate-400 italic">(Trống)</span>';
+    }
+
+    function handleSealJars() {
+      const validA = state.jarA.includes('sprouted') && (state.jarA.includes('lime_1') || state.jarA.includes('lime_2')) && state.jarA.includes('label_a');
+      const validB = !state.jarB.includes('sprouted') && (state.jarB.includes('lime_1') || state.jarB.includes('lime_2')) && state.jarB.includes('label_b');
+      const fb = document.getElementById('assembly-feedback');
+      fb.classList.remove('hidden');
+
+      if (validA && validB) {
+        playBeep(659, 0.15, 'triangle');
+        state.sealed = true;
+        state.score.assembly = 20;
+        updateScoreDisplay();
+        document.getElementById('seal-tag-a').innerText = '🔒 ĐÃ ĐẬY KÍN';
+        document.getElementById('seal-tag-b').innerText = '🔒 ĐÃ ĐẬY KÍN';
+        fb.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900';
+        fb.innerText = '🎉 Chuông đã được đậy kín khí! Hoàn thành xuất sắc (+20 điểm).';
+        document.getElementById('seal-btn').classList.add('hidden');
+        document.getElementById('assembly-next-btn').classList.remove('hidden');
+      } else {
+        playBeep(220, 0.2);
+        fb.className = 'p-3 rounded-xl text-xs font-bold bg-amber-100 text-amber-900';
+        fb.innerText = '💡 Chưa đúng nguyên tắc: Chuông A cần Hạt nảy mầm + Cốc nước vôi + Nhãn A. Chuông B là đối chứng: Cốc nước vôi + Nhãn B (KHÔNG có hạt)!';
+      }
+    }
+
+    // STAGE 3: PREDICTIONS
+    function lockPredictions() {
+      const pA = document.querySelector('input[name="pred_a"]:checked');
+      const pB = document.querySelector('input[name="pred_b"]:checked');
+      if (!pA || !pB) {
+        alert('Vui lòng chọn dự đoán cho cả hai chuông!');
+        return;
+      }
+      playBeep(523, 0.15);
+      state.predA = pA.value;
+      state.predB = pB.value;
+      state.predLocked = true;
+      state.score.predict = 10;
+      updateScoreDisplay();
+      document.getElementById('pred-locked-notice').classList.remove('hidden');
+      document.getElementById('lock-pred-btn').classList.add('hidden');
+      document.getElementById('pred-next-btn').classList.remove('hidden');
+    }
+
+    // STAGE 4: SIMULATION
+    function toggleSimulation() {
+      if (state.simTimer) {
+        clearInterval(state.simTimer);
+        state.simTimer = null;
+        document.getElementById('sim-run-btn').innerText = 'TIẾP TỤC';
+        return;
+      }
+      document.getElementById('sim-run-btn').innerText = 'ĐANG CHẠY...';
+      state.simTimer = setInterval(() => {
+        state.simMinutes += 2;
+        if (state.simMinutes > 60) state.simMinutes = 60;
+        document.getElementById('sim-clock').innerText = '00:' + (state.simMinutes < 10 ? '0' + state.simMinutes : state.simMinutes) + ':00';
+
+        const beakerA = document.getElementById('sim-beaker-a');
+        const statusA = document.getElementById('sim-status-a');
+        if (state.simMinutes >= 40) {
+          beakerA.style.backgroundColor = '#f1f5f9';
+          statusA.innerText = 'Nước vôi vẩn đục trắng sữa (CaCO₃)';
+        } else if (state.simMinutes >= 15) {
+          beakerA.style.backgroundColor = '#e2e8f0';
+          statusA.innerText = 'Nước vôi bắt đầu hơi đục nhẹ';
+        }
+
+        if (state.simMinutes >= 60) {
+          clearInterval(state.simTimer);
+          state.simTimer = null;
+          state.score.simulate = 15;
+          updateScoreDisplay();
+          playBeep(784, 0.2, 'triangle');
+          document.getElementById('sim-run-btn').innerText = 'HOÀN THÀNH 60 PHÚT';
+          document.getElementById('sim-next-btn').classList.remove('hidden');
+        }
+      }, 150);
+    }
+
+    function toggleMolecularMode() {
+      playBeep(600, 0.05);
+      const modal = document.getElementById('molecule-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    // STAGE 5: DETECTIVE
+    const cases = [
+      { id: 1, title: 'Vụ án 1: Dùng hạt đậu khô thay cho hạt nảy mầm', desc: 'Tại sao hạt khô không làm đục nước vôi?', answer: 'Hạt khô thiếu nước, cường độ hô hấp cực kì yếu nên lượng CO₂ thoát ra không đáng kể.' },
+      { id: 2, title: 'Vụ án 2: Chuông A không được đậy kín khí', desc: 'Hở chuông gây hậu quả gì?', answer: 'Khí CO₂ sinh ra bị thất thoát ra ngoài môi trường làm sai lệch kết quả thí nghiệm.' },
+      { id: 3, title: 'Vụ án 3: Cả hai chuông A và B đều đặt hạt đậu nảy mầm', desc: 'Vi phạm điều gì?', answer: 'Mất đi hệ đối chứng, không thể chứng minh sự biến đổi nước vôi là do hạt gây ra.' },
+      { id: 4, title: 'Vụ án 4: Quên cho nước vôi trong mà thay bằng cốc nước lọc', desc: 'Nước lọc có tác dụng không?', answer: 'Nước lọc không phản ứng tạo kết tủa với CO₂ nên không thể quan sát hiện tượng.' },
+      { id: 5, title: 'Vụ án 5: Hạt bị ngâm chìm trong nước suốt 48 giờ', desc: 'Ngâm quá lâu làm sao?', answer: 'Hạt bị ngập úng thiếu O₂ để hô hấp, phôi bị ngạt thở và thối hỏng.' },
+      { id: 6, title: 'Vụ án 6: Bông lót đĩa hạt bị khô hoàn toàn', desc: 'Khô hạn ảnh hưởng gì?', answer: 'Tế bào phôi bị mất nước nghiêm trọng khiến hoạt động hô hấp bị ngừng trệ.' },
+    ];
+    let currentCaseIdx = 0;
+
+    function initStage5() {
+      renderCase(0);
+    }
+
+    function renderCase(idx) {
+      currentCaseIdx = idx;
+      const c = cases[idx];
+      const box = document.getElementById('detective-case-box');
+      box.innerHTML = `
+        <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200">
+          <span class="text-xs font-bold text-amber-800 uppercase">Hồ sơ ${idx + 1}/6</span>
+          <h4 class="font-black text-sm text-slate-900 mt-1">${c.title}</h4>
+          <p class="text-xs text-slate-600 mt-1">${c.desc}</p>
+          <div class="mt-4 p-3 bg-white rounded-xl border">
+            <p class="text-xs font-bold text-slate-800">Giải thích chuẩn khoa học:</p>
+            <p class="text-xs text-emerald-800 font-semibold mt-0.5">${c.answer}</p>
+          </div>
+          <button onclick="solveCase(${c.id})" class="mt-4 px-4 py-2 bg-amber-600 text-white font-bold text-xs rounded-xl">
+            ✓ Phá án thành công (+5 điểm)
+          </button>
+        </div>
+      `;
+    }
+
+    function solveCase(id) {
+      playBeep(659, 0.1, 'triangle');
+      state.solvedCases[id] = true;
+      const solved = Object.keys(state.solvedCases).length;
+      state.score.detective = solved * 5;
+      updateScoreDisplay();
+      document.getElementById('detective-score-badge').innerText = 'Đã giải quyết: ' + solved + ' / 6 vụ án';
+
+      if (currentCaseIdx < 5) {
+        renderCase(currentCaseIdx + 1);
+      } else {
+        document.getElementById('detective-case-box').innerHTML = `
+          <div class="p-4 bg-emerald-100 text-emerald-900 rounded-2xl font-bold text-center">
+            🎉 Em đã hoàn thành xuất sắc toàn bộ 6 vụ án thí nghiệm hỏng! (+30 điểm)
+          </div>
+        `;
+        document.getElementById('detective-next-btn').classList.remove('hidden');
+      }
+    }
+
+    // STAGE 6: CONCLUSION & FOOD
+    function evaluateConclusion() {
+      const val = document.getElementById('conclusion-input').value.toLowerCase();
+      const fb = document.getElementById('conclusion-eval-feedback');
+      fb.classList.remove('hidden');
+
+      const hasSeed = val.includes('hạt') || val.includes('mầm');
+      const hasResp = val.includes('hô hấp') || val.includes('thở') || val.includes('sống');
+      const hasCO2 = val.includes('co2') || val.includes('co₂') || val.includes('carbon') || val.includes('cacbon');
+
+      if (hasSeed && hasResp && hasCO2) {
+        playBeep(659, 0.15, 'triangle');
+        state.score.conclusion += 10;
+        state.conclusionText = val;
+        updateScoreDisplay();
+        fb.className = 'mt-3 p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900';
+        fb.innerText = '🎉 Rất chính xác! Hạt nảy mầm hô hấp và thải ra khí Carbon dioxide (CO₂). (+10 điểm)';
+      } else {
+        playBeep(220, 0.2);
+        fb.className = 'mt-3 p-3 rounded-xl text-xs font-bold bg-amber-100 text-amber-900';
+        fb.innerText = '💡 Gợi ý: Hãy nhắc đến "hạt đang nảy mầm", "hô hấp" và "khí CO₂" được giải phóng nhé!';
+      }
+    }
+
+    function submitFoodAnswer() {
+      const q = document.querySelector('input[name="food_q"]:checked');
+      if (q && q.value === 'correct') {
+        playBeep(659, 0.1, 'triangle');
+        state.score.conclusion += 5;
+        state.foodAnswered = true;
+        updateScoreDisplay();
+        document.getElementById('food-feedback').classList.remove('hidden');
+      } else {
+        alert('Hãy chọn câu trả lời chính xác để tiếp tục nhé!');
+      }
+    }
+
+    function finishLab() {
+      playBeep(784, 0.3, 'triangle');
+      const total = Object.values(state.score).reduce((a, b) => a + b, 0);
+
+      document.getElementById('report-name').innerText = state.name;
+      document.getElementById('report-class').innerText = state.studentClass;
+      document.getElementById('report-score').innerText = total + '/100';
+      document.getElementById('report-sign-name').innerText = state.name;
+
+      let badge = '🌱 NHÀ KHOA HỌC TẬP SỰ';
+      if (total >= 90) badge = '🏅 NHÀ KHOA HỌC THỰC VẬT XUẤT SẮC';
+      else if (total >= 75) badge = '🌟 NHÀ NGHIÊN CỨU TÀI NĂNG';
+
+      document.getElementById('badge-title-display').innerText = badge;
+      document.getElementById('report-badge').innerText = badge;
+      document.getElementById('report-conclusion').innerText = state.conclusionText || 'Hạt đang nảy mầm thực hiện quá trình hô hấp tế bào và thải khí carbon dioxide (CO₂).';
+
+      // Record student submission in localStorage for Teacher Mode
+      try {
+        const list = JSON.parse(localStorage.getItem('bio_lab_7_student_submissions') || '[]');
+        list.unshift({
+          id: Date.now().toString(),
+          studentName: state.name || 'Học sinh',
+          studentClass: state.studentClass || '7A',
+          completedAt: new Date().toLocaleString('vi-VN'),
+          scoreTotal: total,
+          badgeTitle: badge,
+          userConclusion: state.conclusionText || ''
+        });
+        localStorage.setItem('bio_lab_7_student_submissions', JSON.stringify(list));
+      } catch (e) {}
+
+      gotoStage(7);
+    }
+
+    function confirmReset() {
+      document.getElementById('reset-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+      document.getElementById('reset-confirm-modal').classList.add('hidden');
+    }
+
+    function resetExperiment(keepStudent = true) {
+      closeResetModal();
+      playBeep(440, 0.1);
+      state.score = { prep: 0, assembly: 0, predict: 0, simulate: 0, detective: 0, conclusion: 0 };
+      state.jarA = [];
+      state.jarB = [];
+      state.sealed = false;
+      state.predA = '';
+      state.predB = '';
+      state.predLocked = false;
+      state.simMinutes = 0;
+      if (state.simTimer) {
+        clearInterval(state.simTimer);
+        state.simTimer = null;
+      }
+      state.solvedCases = {};
+      state.conclusionText = '';
+      state.foodAnswered = false;
+
+      updateScoreDisplay();
+
+      // Reset stage 1
+      currentPrepOrder = [3, 1, 5, 2, 6, 4];
+      initStage1();
+      const pCheck = document.getElementById('prep-check-btn');
+      const pNext = document.getElementById('prep-next-btn');
+      const pFb = document.getElementById('prep-feedback');
+      if (pCheck) pCheck.classList.remove('hidden');
+      if (pNext) pNext.classList.add('hidden');
+      if (pFb) pFb.classList.add('hidden');
+
+      // Reset stage 2
+      const sTagA = document.getElementById('seal-tag-a');
+      const sTagB = document.getElementById('seal-tag-b');
+      const sBtn = document.getElementById('seal-btn');
+      const sNext = document.getElementById('assembly-next-btn');
+      const sFb = document.getElementById('assembly-feedback');
+      if (sTagA) sTagA.innerText = 'Chưa đậy';
+      if (sTagB) sTagB.innerText = 'Chưa đậy';
+      if (sBtn) sBtn.classList.remove('hidden');
+      if (sNext) sNext.classList.add('hidden');
+      if (sFb) sFb.classList.add('hidden');
+      renderJars();
+
+      // Reset stage 3
+      document.querySelectorAll('input[name="pred_a"]').forEach(r => r.checked = false);
+      document.querySelectorAll('input[name="pred_b"]').forEach(r => r.checked = false);
+      const prLock = document.getElementById('pred-locked-notice');
+      const prBtn = document.getElementById('lock-pred-btn');
+      const prNext = document.getElementById('pred-next-btn');
+      if (prLock) prLock.classList.add('hidden');
+      if (prBtn) prBtn.classList.remove('hidden');
+      if (prNext) prNext.classList.add('hidden');
+
+      // Reset stage 4
+      const clk = document.getElementById('sim-clock');
+      const sRun = document.getElementById('sim-run-btn');
+      const simNext = document.getElementById('sim-next-btn');
+      const beakerA = document.getElementById('sim-beaker-a');
+      const statusA = document.getElementById('sim-status-a');
+      if (clk) clk.innerText = '00:00:00';
+      if (sRun) sRun.innerText = '▶ BẮT ĐẦU THÍ NGHIỆM';
+      if (simNext) simNext.classList.add('hidden');
+      if (beakerA) beakerA.style.backgroundColor = '#dbeafe';
+      if (statusA) statusA.innerText = 'Nước vôi trong suốt (0 phút)';
+
+      // Reset stage 5
+      initStage5();
+      const detBadge = document.getElementById('detective-score-badge');
+      const detNext = document.getElementById('detective-next-btn');
+      if (detBadge) detBadge.innerText = 'Đã giải quyết: 0 / 6 vụ án';
+      if (detNext) detNext.classList.add('hidden');
+
+      // Reset stage 6
+      const conclInp = document.getElementById('conclusion-input');
+      const conclFb = document.getElementById('conclusion-eval-feedback');
+      const foodFb = document.getElementById('food-feedback');
+      if (conclInp) conclInp.value = '';
+      if (conclFb) conclFb.classList.add('hidden');
+      document.querySelectorAll('input[name="food_q"]').forEach(r => r.checked = false);
+      if (foodFb) foodFb.classList.add('hidden');
+
+      if (keepStudent && state.name) {
+        gotoStage(1);
+      } else {
+        state.name = '';
+        state.studentClass = '';
+        const inpN = document.getElementById('input-name');
+        const inpC = document.getElementById('input-class');
+        if (inpN) inpN.value = '';
+        if (inpC) inpC.value = '';
+        const sBadge = document.getElementById('student-badge');
+        const sStepper = document.getElementById('stage-stepper');
+        if (sBadge) sBadge.classList.add('hidden');
+        if (sStepper) sStepper.classList.add('hidden');
+        document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+        document.getElementById('screen-welcome').classList.remove('hidden');
+      }
+    }
+
+    // TEACHER MODE FUNCTIONS
+    function openTeacherModal() {
+      document.getElementById('teacher-modal').classList.remove('hidden');
+    }
+
+    function closeTeacherModal() {
+      document.getElementById('teacher-modal').classList.add('hidden');
+    }
+
+    function checkTeacherPin() {
+      const pin = document.getElementById('teacher-pin-input').value;
+      if (pin === '1234') {
+        playBeep(659, 0.15, 'triangle');
+        document.getElementById('teacher-login-box').classList.add('hidden');
+        document.getElementById('teacher-dashboard-box').classList.remove('hidden');
+        renderTeacherResults();
+      } else {
+        playBeep(220, 0.2);
+        document.getElementById('teacher-pin-error').innerText = 'Mật khẩu không đúng! (Gợi ý: 1234)';
+      }
+    }
+
+    function renderTeacherResults() {
+      try {
+        const list = JSON.parse(localStorage.getItem('bio_lab_7_student_submissions') || '[]');
+        const container = document.getElementById('teacher-submissions-tbody');
+        if (list.length === 0) {
+          container.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Chưa có dữ liệu học sinh nộp bài.</td></tr>';
+          return;
+        }
+        container.innerHTML = list.map((item, idx) => `
+          <tr class="border-b">
+            <td class="p-2 font-bold">${item.studentName}</td>
+            <td class="p-2">${item.studentClass}</td>
+            <td class="p-2">${item.completedAt}</td>
+            <td class="p-2 font-black text-emerald-700">${item.scoreTotal}/100</td>
+            <td class="p-2 text-slate-600 italic truncate max-w-xs">${item.userConclusion}</td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    function exportTeacherCSV() {
+      const list = JSON.parse(localStorage.getItem('bio_lab_7_student_submissions') || '[]');
+      if (list.length === 0) {
+        alert('Chưa có học sinh nào nộp bài!');
+        return;
+      }
+      let csv = 'data:text/csv;charset=utf-8,\uFEFFSTT,Họ tên,Lớp,Thời gian,Điểm,Kết luận\n';
+      list.forEach((s, idx) => {
+        csv += `${idx + 1},"${s.studentName}","${s.studentClass}","${s.completedAt}",${s.scoreTotal},"${(s.userConclusion || '').replace(/"/g, '""')}"\n`;
+      });
+      const encoded = encodeURI(csv);
+      const a = document.createElement('a');
+      a.href = encoded;
+      a.download = `Danh-sach-diem-KHTN7-${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function clearTeacherSubmissions() {
+      if (confirm('Thầy/Cô có chắc chắn muốn xóa toàn bộ danh sách kết quả học sinh?')) {
+        localStorage.removeItem('bio_lab_7_student_submissions');
+        renderTeacherResults();
+      }
+    }
+  </script>
+
+  <!-- TEACHER MODE MODAL -->
+  <div id="teacher-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border-2 border-emerald-500 max-w-3xl w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🔐</span>
+          <h3 class="font-black text-base sm:text-lg text-slate-900">CHẾ ĐỘ GIÁO VIÊN (KHTN 7)</h3>
+        </div>
+        <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+      </div>
+
+      <!-- Password Box -->
+      <div id="teacher-login-box" class="py-6 text-center space-y-3">
+        <p class="text-xs text-slate-600">Nhập mật khẩu Giáo viên để xem bảng điểm và quản lý thí nghiệm:</p>
+        <div class="flex justify-center gap-2 max-w-xs mx-auto">
+          <input id="teacher-pin-input" type="password" placeholder="Mật khẩu (1234)" class="px-4 py-2 border-2 border-slate-300 rounded-xl text-center font-bold text-sm w-44">
+          <button onclick="checkTeacherPin()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl shadow">Xác nhận</button>
+        </div>
+        <p id="teacher-pin-error" class="text-xs font-bold text-rose-500"></p>
+        <p class="text-[11px] text-slate-400">* Mật khẩu: 1234</p>
+      </div>
+
+      <!-- Dashboard Box -->
+      <div id="teacher-dashboard-box" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 class="font-extrabold text-xs sm:text-sm text-slate-800">📊 BẢNG ĐIỂM HỌC SINH ĐÃ NỘP BÀI</h4>
+          <div class="flex gap-2">
+            <button onclick="exportTeacherCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs">
+              Xuất Excel (CSV)
+            </button>
+            <button onclick="clearTeacherSubmissions()" class="px-3 py-1.5 bg-rose-50 text-rose-600 border border-rose-300 rounded-xl text-xs font-bold">
+              Xóa danh sách
+            </button>
+          </div>
+        </div>
+
+        <div class="max-h-60 overflow-y-auto border rounded-xl">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-100 font-bold">
+              <tr>
+                <th class="p-2">Họ tên</th>
+                <th class="p-2">Lớp</th>
+                <th class="p-2">Thời gian</th>
+                <th class="p-2">Điểm</th>
+                <th class="p-2">Kết luận</th>
+              </tr>
+            </thead>
+            <tbody id="teacher-submissions-tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <div class="p-3 bg-slate-50 border rounded-xl text-xs space-y-1">
+          <p class="font-bold text-slate-700">💡 Nhân bản bài học cho các thí nghiệm khác:</p>
+          <p class="text-slate-500">Giáo viên có thể xuất file cấu hình JSON hoặc sửa đổi nội dung để dùng cho <em>Bài 23: Quang hợp ở cây xanh</em> hoặc <em>Bài 28: Thoát hơi nước ở lá cây</em>.</p>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button onclick="closeTeacherModal()" class="px-5 py-2 bg-slate-800 text-white font-bold text-xs rounded-xl">
+            Đóng bảng quản trị
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESET CONFIRMATION MODAL -->
+  <div id="reset-confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border-2 border-emerald-400 max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative">
+      <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto text-2xl">
+        🔄
+      </div>
+      <h3 class="font-black text-xl text-slate-900">Thực hiện lại bài thực hành?</h3>
+      <p class="text-xs text-slate-500">Toàn bộ điểm số và kết quả sẽ được đặt lại từ đầu để em rèn luyện lại.</p>
+
+      <div class="space-y-2.5 pt-2">
+        <button onclick="resetExperiment(true)" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow">
+          🌱 Làm lại từ Màn 1 (Giữ tên & lớp)
+        </button>
+        <button onclick="resetExperiment(false)" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">
+          👤 Đổi học sinh mới (Về màn hình chào)
+        </button>
+        <button onclick="closeResetModal()" class="w-full py-2 text-xs font-semibold text-slate-400 hover:text-slate-600">
+          Hủy, tiếp tục bài đang làm
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
